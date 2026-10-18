@@ -97,7 +97,11 @@
     <section class="results panel" id="resultsPanel" aria-labelledby="resultsTitle">
       <div class="panel-heading">
         <div><p class="kicker">SESSION SUMMARY</p><h2 id="resultsTitle">本次分析摘要</h2></div>
-        <button class="button" id="exportButton" disabled>匯出 CSV</button>
+        <div class="report-actions">
+          <button class="button" id="reportButton" disabled>下載檢測報告</button>
+          <button class="button line-button" id="shareButton" disabled>LINE 分享</button>
+          <button class="button" id="exportButton" disabled>匯出 CSV</button>
+        </div>
       </div>
       <div class="results-empty" id="resultsEmpty">完成一次分析後，這裡會整理平均穩定度、晃動幅度、角度變異與教練觀察提示。</div>
       <div class="results-content hidden" id="resultsContent">
@@ -108,6 +112,7 @@
           <article><span>有效資料率</span><strong id="summaryQuality">—</strong></article>
         </div>
         <div class="coach-note"><span aria-hidden="true">◎</span><div><b>教練觀察提示</b><p id="coachNote"></p></div></div>
+        <p class="report-status" id="reportStatus" role="status"></p>
       </div>
     </section>
 
