@@ -1,0 +1,13 @@
+{
+  "projects": {},
+  "targets": {
+    "pulselens-fitness-skyfu218": {
+      "hosting": {
+        "aimtrace": [
+          "air-pistol-sway-skyfu218"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
