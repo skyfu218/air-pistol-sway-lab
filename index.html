@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07110f">
+  <meta name="description" content="以手機影像估算空氣手槍持槍穩定性的教練輔助 Web App。">
+  <title>AimTrace｜空氣手槍穩定性分析</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="AimTrace 首頁">
+      <span class="brand-mark" aria-hidden="true"><span></span></span>
+      <span><b>AimTrace</b><small>空氣手槍穩定性分析</small></span>
+    </a>
+    <div class="top-actions">
+      <span class="privacy-pill"><i></i> 影像僅在本機處理</span>
+      <button class="icon-button" id="helpButton" aria-label="開啟使用說明">?</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow">COACHING VISION LAB</p>
+        <h1 id="pageTitle">看見肉眼難以察覺的持槍微動</h1>
+        <p>以姿態關鍵點與局部 ROI 追蹤，將側面手機影像轉成可比較的晃動趨勢。數值為手機影像估算，不是醫療或儀器級測量。</p>
+      </div>
+      <div class="session-chip"><span id="sessionDot"></span><b id="sessionState">尚未開始</b><small id="sessionClock">00:00.0</small></div>
+    </section>
+
+    <section class="workspace">
+      <div class="capture-card panel">
+        <div class="panel-heading">
+          <div><p class="kicker">LIVE CAPTURE</p><h2>側面拍攝</h2></div>
+          <div class="quality-badge idle" id="qualityBadge"><span></span><b>等待畫面</b></div>
+        </div>
+
+        <div class="stage" id="stage">
+          <video id="video" playsinline muted></video>
+          <canvas id="overlay"></canvas>
+          <div class="empty-stage" id="emptyStage">
+            <div class="target-illustration" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
+            <h3>固定手機，從射手側面取景</h3>
+            <p>讓頭部到腳踝完整入鏡，保持光線充足。啟動後可點選槍口或準星附近建立 ROI。</p>
+          </div>
+          <div class="stage-guide" id="stageGuide">點一下槍口／準星位置，建立 ROI 追蹤</div>
+          <div class="model-loading hidden" id="modelLoading"><span class="spinner"></span>姿態模型載入中…</div>
+        </div>
+
+        <div class="capture-controls">
+          <button class="button primary" id="cameraButton"><span aria-hidden="true">●</span> 啟動相機</button>
+          <button class="button" id="demoButton">體驗示範</button>
+          <button class="button" id="flipButton" disabled>切換鏡頭</button>
+          <button class="button danger hidden" id="stopCameraButton">關閉相機</button>
+        </div>
+
+        <div class="capture-settings">
+          <label>持槍側
+            <select id="armSide"><option value="right">右手</option><option value="left">左手</option></select>
+          </label>
+          <label>分析時間
+            <select id="duration"><option value="10">10 秒</option><option value="20" selected>20 秒</option><option value="30">30 秒</option></select>
+          </label>
+          <label class="toggle-label"><input type="checkbox" id="skeletonToggle" checked><span></span> 顯示骨架</label>
+        </div>
+      </div>
+
+      <aside class="analysis-column">
+        <section class="panel score-panel">
+          <div class="panel-heading compact"><div><p class="kicker">STABILITY NOW</p><h2>即時穩定度</h2></div><button class="mini-button" id="resetButton">重新校正</button></div>
+          <div class="score-layout">
+            <div class="score-ring" id="scoreRing"><div><strong id="scoreValue">—</strong><small>/ 100</small></div></div>
+            <div class="score-copy"><b id="scoreLabel">等待建立基準</b><p id="scoreHint">啟動相機後保持自然瞄準姿勢約 2 秒。</p></div>
+          </div>
+          <div class="metric-grid">
+            <article><span>持槍手晃動 RMS</span><strong id="wristRms">—</strong><small>軀幹長度 %</small></article>
+            <article><span>ROI 位移</span><strong id="roiRms">—</strong><small>像素 RMS</small></article>
+            <article><span>肘角度</span><strong id="elbowAngle">—</strong><small>影像平面估算</small></article>
+            <article><span>軀幹傾角</span><strong id="trunkAngle">—</strong><small>相對垂直線</small></article>
+          </div>
+        </section>
+
+        <section class="panel trace-panel">
+          <div class="panel-heading compact"><div><p class="kicker">MOVEMENT TRACE</p><h2>晃動軌跡</h2></div><span class="legend"><i></i>最近 5 秒</span></div>
+          <canvas id="traceCanvas" width="640" height="280" aria-label="晃動軌跡圖"></canvas>
+          <div class="trace-axis"><span>左右</span><span>中心基準</span><span>上下</span></div>
+        </section>
+
+        <button class="session-button" id="sessionButton" disabled><span>開始 20 秒分析</span><small>建立個人基準並記錄穩定性</small></button>
+      </aside>
+    </section>
+
+    <section class="results panel" id="resultsPanel" aria-labelledby="resultsTitle">
+      <div class="panel-heading">
+        <div><p class="kicker">SESSION SUMMARY</p><h2 id="resultsTitle">本次分析摘要</h2></div>
+        <button class="button" id="exportButton" disabled>匯出 CSV</button>
+      </div>
+      <div class="results-empty" id="resultsEmpty">完成一次分析後，這裡會整理平均穩定度、晃動幅度、角度變異與教練觀察提示。</div>
+      <div class="results-content hidden" id="resultsContent">
+        <div class="summary-grid">
+          <article><span>平均穩定度</span><strong id="summaryScore">—</strong></article>
+          <article><span>持槍手 RMS</span><strong id="summaryWrist">—</strong></article>
+          <article><span>肘角度變異</span><strong id="summaryElbow">—</strong></article>
+          <article><span>有效資料率</span><strong id="summaryQuality">—</strong></article>
+        </div>
+        <div class="coach-note"><span aria-hidden="true">◎</span><div><b>教練觀察提示</b><p id="coachNote"></p></div></div>
+      </div>
+    </section>
+
+    <section class="method-note">
+      <h2>怎麼理解這些數字？</h2>
+      <div class="method-grid">
+        <article><b>相對變化，不是假精密</b><p>角度可顯示小數，但精度受畫質、關鍵點信心與鏡頭穩定影響。適合比較同人、同機、同角度的趨勢。</p></article>
+        <article><b>ROI 補足骨架限制</b><p>點選槍口或準星附近後，以局部影像樣板追蹤微動；若遮擋或畫面模糊，資料品質會下降。</p></article>
+        <article><b>教練判讀優先</b><p>系統不判定技術好壞。請結合射擊結果、呼吸、扳機階段與教練觀察做判讀。</p></article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="helpDialog">
+    <button class="dialog-close" id="closeHelp" aria-label="關閉">×</button>
+    <p class="kicker">QUICK START</p><h2>三步開始分析</h2>
+    <ol><li><b>固定手機</b><span>側面取景，完整拍到頭、持槍手與腳踝。</span></li><li><b>啟動相機</b><span>允許權限後，保持自然瞄準約 2 秒完成校正。</span></li><li><b>點選 ROI</b><span>在畫面點一下槍口或準星附近，再開始定時分析。</span></li></ol>
+    <p class="fine-print">安全提醒：介面供教練在安全位置觀看，請勿讓射手在持槍過程分心操作裝置。</p>
+  </dialog>
+
+  <footer><span>AimTrace MVP · 手機影像估算</span><span>不儲存、不上傳相機影像</span></footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
