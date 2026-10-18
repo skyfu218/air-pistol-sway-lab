@@ -2,7 +2,16 @@
   "hosting": {
     "target": "aimtrace",
     "public": ".",
-    "ignore": ["firebase.json", ".firebaserc", "README.md", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      ".gitignore",
+      ".git/**",
+      "firebase-debug.log",
+      "README.md",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "headers": [
       {"source": "**/*.@(js|css)", "headers": [{"key": "Cache-Control", "value": "public,max-age=3600"}]},
       {"source": "**", "headers": [
