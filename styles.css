@@ -5,3 +5,13 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation-duration:.01ms!important}}
 .stage video{transform:none}.report-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.line-button{background:#06c755;border-color:#06c755;color:#04150b}.line-button:hover{background:#16db68;border-color:#16db68}.report-status{min-height:1.4em;margin:10px 2px 0;color:var(--mint);font-size:11px}.report-status.error{color:var(--amber)}
 @media(max-width:680px){.results .panel-heading{align-items:flex-start}.report-actions{width:100%;justify-content:stretch}.report-actions .button{flex:1;min-width:118px}}
+
+/* Axis labels and capture-side analysis control */
+.capture-session-button{margin-top:12px}
+.trace-plot{position:relative}
+.trace-plot .trace-y-axis{position:absolute;inset:10px auto 10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;color:#91a59d;font-size:8px;pointer-events:none;text-shadow:0 1px 3px #07110f}
+.trace-plot .trace-y-axis b{padding:5px 4px;border-radius:6px;background:rgba(7,17,15,.76);color:#c6d7d0;font-size:9px;letter-spacing:.08em;writing-mode:vertical-rl}
+.trace-axis{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;color:#91a59d;margin-top:7px}
+.trace-axis strong{color:#c6d7d0;font-size:9px;letter-spacing:.04em;text-align:center}
+.trace-axis span:last-child{text-align:right}
+.trace-origin{color:#6f837c;font-size:8px;text-align:center;margin-top:4px}
