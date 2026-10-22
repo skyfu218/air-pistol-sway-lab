@@ -1,0 +1,17 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "publicStats": {
+      "aimtrace": {
+        ".read": true,
+        ".write": "(!data.exists() && newData.child('opens').isNumber() && newData.child('starts').isNumber() && newData.child('completions').isNumber() && newData.child('opens').val() + newData.child('starts').val() + newData.child('completions').val() == 1) || (data.exists() && newData.child('opens').val() >= data.child('opens').val() && newData.child('opens').val() <= data.child('opens').val() + 1 && newData.child('starts').val() >= data.child('starts').val() && newData.child('starts').val() <= data.child('starts').val() + 1 && newData.child('completions').val() >= data.child('completions').val() && newData.child('completions').val() <= data.child('completions').val() + 1 && newData.child('opens').val() + newData.child('starts').val() + newData.child('completions').val() == data.child('opens').val() + data.child('starts').val() + data.child('completions').val() + 1)",
+        "opens": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "starts": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "completions": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+        "updatedAt": { ".validate": "newData.isNumber() && newData.val() > 0" },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}

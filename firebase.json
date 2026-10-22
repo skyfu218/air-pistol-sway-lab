@@ -1,4 +1,7 @@
 {
+  "database": {
+    "rules": "database.rules.json"
+  },
   "hosting": {
     "target": "aimtrace",
     "public": ".",
@@ -9,6 +12,7 @@
       ".git/**",
       "firebase-debug.log",
       "README.md",
+      "database.rules.json",
       "**/.*",
       "**/node_modules/**"
     ],

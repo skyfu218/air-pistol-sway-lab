@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=axis-capture-v3">
+  <link rel="stylesheet" href="styles.css?v=roi10-v4">
 </head>
 <body>
   <header class="topbar">
@@ -49,6 +49,7 @@
           </div>
           <div class="stage-guide" id="stageGuide">點一下槍口／準星位置，建立 ROI 追蹤</div>
           <div class="model-loading hidden" id="modelLoading"><span class="spinner"></span>姿態模型載入中…</div>
+          <div class="countdown-overlay hidden" id="countdownOverlay" aria-live="assertive"><small>準備倒數</small><strong id="countdownValue">3</strong><span>倒數期間不記錄</span></div>
         </div>
 
         <div class="capture-controls">
@@ -58,15 +59,13 @@
           <button class="button danger hidden" id="stopCameraButton">關閉相機</button>
         </div>
 
-        <button class="session-button capture-session-button" id="sessionButton" disabled><span>開始 20 秒分析</span><small>準備完成後，從這裡開始記錄本次晃動軌跡</small></button>
+        <button class="session-button capture-session-button" id="sessionButton" disabled><span>開始 10 秒分析</span><small>先倒數 3 秒，再記錄 ROI 持槍部位軌跡</small></button>
 
         <div class="capture-settings">
           <label>持槍側
             <select id="armSide"><option value="right">右手</option><option value="left">左手</option></select>
           </label>
-          <label>分析時間
-            <select id="duration"><option value="10">10 秒</option><option value="20" selected>20 秒</option><option value="30">30 秒</option></select>
-          </label>
+          <span class="fixed-duration"><b>10 秒</b><small>固定分析時間</small></span>
           <label class="toggle-label"><input type="checkbox" id="skeletonToggle" checked><span></span> 顯示骨架</label>
         </div>
       </div>
@@ -76,24 +75,25 @@
           <div class="panel-heading compact"><div><p class="kicker">STABILITY NOW</p><h2>即時穩定度</h2></div><button class="mini-button" id="resetButton">重新校正</button></div>
           <div class="score-layout">
             <div class="score-ring" id="scoreRing"><div><strong id="scoreValue">—</strong><small>/ 100</small></div></div>
-            <div class="score-copy"><b id="scoreLabel">等待建立基準</b><p id="scoreHint">啟動相機後保持自然瞄準姿勢約 2 秒。</p></div>
+            <div class="score-copy"><b id="scoreLabel">等待設定 ROI</b><p id="scoreHint">啟動相機後，點選槍口或準星附近作為主要追蹤區域。</p></div>
           </div>
           <div class="metric-grid">
-            <article><span>持槍手晃動 RMS</span><strong id="wristRms">—</strong><small>軀幹長度 %</small></article>
-            <article><span>ROI 位移</span><strong id="roiRms">—</strong><small>像素 RMS</small></article>
+            <article class="primary-metric"><span>ROI 上下位移 RMS</span><strong id="roiRmsY">—</strong><small>畫面高度 %・主要指標</small></article>
+            <article><span>ROI 左右位移 RMS</span><strong id="roiRmsX">—</strong><small>畫面寬度 %</small></article>
+            <article><span>軀幹前後位移 RMS</span><strong id="foreAftRms">—</strong><small>軀幹長度 %・2D 側面估算</small></article>
             <article><span>肘角度</span><strong id="elbowAngle">—</strong><small>影像平面估算</small></article>
-            <article><span>軀幹傾角</span><strong id="trunkAngle">—</strong><small>相對垂直線</small></article>
           </div>
+          <div class="secondary-metrics"><span>持槍手骨架 RMS <b id="wristRms">—</b></span><span>軀幹傾角 <b id="trunkAngle">—</b></span><span>ROI 綜合 RMS <b id="roiRms">—</b></span></div>
         </section>
 
         <section class="panel trace-panel">
-          <div class="panel-heading compact"><div><p class="kicker">MOVEMENT TRACE</p><h2>晃動軌跡</h2></div><span class="legend"><i></i>本次分析</span></div>
+          <div class="panel-heading compact"><div><p class="kicker">ROI MOVEMENT TRACE</p><h2>持槍部位軌跡</h2></div><span class="legend"><i></i>本次 10 秒</span></div>
           <div class="trace-plot">
             <canvas id="traceCanvas" width="640" height="280" aria-label="晃動軌跡圖；水平為 X 軸左右位移，垂直為 Y 軸上下位移"></canvas>
             <div class="trace-y-axis" aria-hidden="true"><span>↑ 上</span><b>Y 軸</b><span>下 ↓</span></div>
           </div>
           <div class="trace-axis"><span>← 左</span><strong>X 軸・左右位移</strong><span>右 →</span></div>
-          <div class="trace-origin">中心基準（0, 0）</div>
+          <div class="trace-origin">以本次 ROI 平均位置為中心基準（0, 0）・上下位移為主要觀察方向</div>
         </section>
       </aside>
     </section>
@@ -107,14 +107,19 @@
           <button class="button" id="exportButton" disabled>匯出 CSV</button>
         </div>
       </div>
-      <div class="results-empty" id="resultsEmpty">完成一次分析後，這裡會整理平均穩定度、晃動幅度、角度變異與教練觀察提示。</div>
+      <div class="results-empty" id="resultsEmpty">完成一次 10 秒分析後，這裡會整理 ROI 上下／左右位移、軌跡範圍，以及身體控制輔助指標。</div>
       <div class="results-content hidden" id="resultsContent">
-        <div class="summary-grid">
-          <article><span>平均穩定度</span><strong id="summaryScore">—</strong></article>
-          <article><span>持槍手 RMS</span><strong id="summaryWrist">—</strong></article>
-          <article><span>肘角度變異</span><strong id="summaryElbow">—</strong></article>
-          <article><span>有效資料率</span><strong id="summaryQuality">—</strong></article>
+        <div class="summary-section-title"><b>持槍部位穩定度</b><span>ROI 主要結果</span></div>
+        <div class="summary-grid six">
+          <article class="primary-metric"><span>上下 RMS</span><strong id="summaryRoiY">—</strong></article>
+          <article><span>左右 RMS</span><strong id="summaryRoiX">—</strong></article>
+          <article><span>上下範圍</span><strong id="summaryRangeY">—</strong></article>
+          <article><span>左右範圍</span><strong id="summaryRangeX">—</strong></article>
+          <article><span>軌跡長度</span><strong id="summaryPath">—</strong></article>
+          <article><span>ROI 有效率</span><strong id="summaryQuality">—</strong></article>
         </div>
+        <div class="summary-section-title secondary"><b>身體控制指標</b><span>骨架輔助判讀</span></div>
+        <div class="summary-grid three"><article><span>持槍手 RMS</span><strong id="summaryWrist">—</strong></article><article><span>肘角度變異</span><strong id="summaryElbow">—</strong></article><article><span>軀幹前後位移 RMS</span><strong id="summaryForeAft">—</strong></article></div>
         <div class="coach-note"><span aria-hidden="true">◎</span><div><b>教練觀察提示</b><p id="coachNote"></p></div></div>
         <p class="report-status" id="reportStatus" role="status"></p>
       </div>
@@ -124,7 +129,8 @@
       <h2>怎麼理解這些數字？</h2>
       <div class="method-grid">
         <article><b>相對變化，不是假精密</b><p>角度可顯示小數，但精度受畫質、關鍵點信心與鏡頭穩定影響。適合比較同人、同機、同角度的趨勢。</p></article>
-        <article><b>ROI 補足骨架限制</b><p>點選槍口或準星附近後，以局部影像樣板追蹤微動；若遮擋或畫面模糊，資料品質會下降。</p></article>
+        <article><b>ROI 是主要結果</b><p>點選槍口或準星附近後，以局部影像樣板追蹤 10 秒微動；上下位移為主要觀察方向。若遮擋或畫面模糊，資料品質會下降。</p></article>
+        <article><b>軀幹前後是 2D 估算</b><p>以側面影像中骨盆相對足部支撐基準的水平變化估算前後晃動，不等同 3D 深度位移或測力板結果。</p></article>
         <article><b>教練判讀優先</b><p>系統不判定技術好壞。請結合射擊結果、呼吸、扳機階段與教練觀察做判讀。</p></article>
       </div>
     </section>
@@ -133,11 +139,15 @@
   <dialog id="helpDialog">
     <button class="dialog-close" id="closeHelp" aria-label="關閉">×</button>
     <p class="kicker">QUICK START</p><h2>三步開始分析</h2>
-    <ol><li><b>固定手機</b><span>側面取景，完整拍到頭、持槍手與腳踝。</span></li><li><b>啟動相機</b><span>允許權限後，保持自然瞄準約 2 秒完成校正。</span></li><li><b>點選 ROI</b><span>在畫面點一下槍口或準星附近，再開始定時分析。</span></li></ol>
+    <ol><li><b>固定手機</b><span>側面取景，完整拍到頭、持槍部位與腳踝。</span></li><li><b>點選 ROI</b><span>在槍口或準星附近點一下，指定主要追蹤部位。</span></li><li><b>開始分析</b><span>3 秒準備倒數不記錄；倒數結束後正式記錄 10 秒。</span></li></ol>
     <p class="fine-print">安全提醒：介面供教練在安全位置觀看，請勿讓射手在持槍過程分心操作裝置。</p>
   </dialog>
 
-  <footer><span>AimTrace MVP · 手機影像估算</span><span>不儲存、不上傳相機影像</span></footer>
-  <script type="module" src="app.js?v=axis-capture-v3"></script>
+  <footer>
+    <div class="usage-stats" aria-live="polite"><span>公開使用統計</span><strong><b id="usageOpens">—</b> 次開啟</strong><strong><b id="usageStarts">—</b> 次開始分析</strong><strong><b id="usageCompletions">—</b> 次完成分析</strong><small id="usageStatus">跨裝置累積統計</small></div>
+    <div class="publisher"><img src="assets/tshst-logo.png" alt="臺灣運動健康科技學會"><div><b>臺灣運動健康科技學會</b><span>製作單位</span><small>更新日期：2026 年 10 月</small></div></div>
+    <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
+  </footer>
+  <script type="module" src="app.js?v=roi10-v4"></script>
 </body>
 </html>
