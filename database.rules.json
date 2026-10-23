@@ -12,6 +12,21 @@
         "updatedAt": { ".validate": "newData.isNumber() && newData.val() > 0" },
         "$other": { ".validate": false }
       }
+    },
+    "privateSubmissions": {
+      ".read": false,
+      "aimtrace": {
+        "$submission": {
+          ".write": "!data.exists()",
+          "type": { ".validate": "newData.isString() && (newData.val() == 'audience' || newData.val() == 'feedback')" },
+          "role": { ".validate": "newData.isString() && (newData.val() == '教練' || newData.val() == '選手' || newData.val() == '運科人員' || newData.val() == '防護人員' || newData.val() == '體能訓練師' || newData.val() == '家長' || newData.val() == '其他')" },
+          "unit": { ".validate": "newData.isString() && newData.val().length <= 80" },
+          "message": { ".validate": "newData.parent().child('type').val() != 'feedback' || (newData.isString() && newData.val().length >= 2 && newData.val().length <= 1000)" },
+          "createdAt": { ".validate": "newData.isNumber() && newData.val() > 0" },
+          "appVersion": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "$other": { ".validate": false }
+        }
+      }
     }
   }
 }

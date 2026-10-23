@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=roi-baseline-replay-v13">
+  <link rel="stylesheet" href="styles.css?v=anonymous-feedback-v14">
 </head>
 <body>
   <header class="topbar">
@@ -150,7 +150,31 @@
         <article><b>教練判讀優先</b><p>系統不判定技術好壞。請結合射擊結果、呼吸、扳機階段與教練觀察做判讀。</p></article>
       </div>
     </section>
+
+    <section class="feedback-panel panel" aria-labelledby="feedbackTitle">
+      <div class="feedback-copy"><p class="kicker">YOUR VOICE MATTERS</p><h2 id="feedbackTitle">您的建議是我們優化的動力，敬請支持！</h2><p>歡迎留下操作感受、希望增加的功能或遇到的問題。建議內容只提供系統總管查看，不會顯示給其他使用者。</p></div>
+      <form id="feedbackForm" class="feedback-form">
+        <label for="feedbackMessage">給我們的建議</label>
+        <textarea id="feedbackMessage" maxlength="1000" required placeholder="例如：哪一個指標最有幫助？哪個操作不夠直覺？"></textarea>
+        <div class="feedback-actions"><button class="button primary" type="submit" id="feedbackSubmit">匿名送出建議</button><button class="button" type="button" id="feedbackEmail">使用 Email 傳送</button></div>
+        <p id="feedbackStatus" class="feedback-status" role="status">送出內容不包含相機影像或分析影片。</p>
+      </form>
+    </section>
   </main>
+
+  <dialog id="audienceDialog" class="audience-dialog">
+    <form id="audienceForm">
+      <p class="kicker">WELCOME TO AIMTRACE</p><h2>開始前，請告訴我們您的使用身分</h2>
+      <p>可匿名使用。這些資料只用於了解使用族群與改善系統，不會公開顯示。</p>
+      <label for="audienceRole">身分別</label>
+      <select id="audienceRole" required><option value="" selected disabled>請選擇</option><option>教練</option><option>選手</option><option>運科人員</option><option>防護人員</option><option>體能訓練師</option><option>家長</option><option>其他</option></select>
+      <label for="audienceUnit">單位（非必填）</label>
+      <input id="audienceUnit" maxlength="80" autocomplete="organization" placeholder="例如：學校、代表隊、俱樂部">
+      <small>請勿填寫姓名、電話或其他不必要的個人資料。</small>
+      <button class="button primary" type="submit" id="audienceEnter">匿名進入系統</button>
+      <p id="audienceStatus" class="feedback-status" role="status"></p>
+    </form>
+  </dialog>
 
   <dialog id="helpDialog">
     <button class="dialog-close" id="closeHelp" aria-label="關閉">×</button>
@@ -169,6 +193,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=roi-baseline-replay-v13"></script>
+  <script type="module" src="app.js?v=anonymous-feedback-v14"></script>
 </body>
 </html>
