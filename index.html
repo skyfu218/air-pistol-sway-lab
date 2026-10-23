@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=footer-copyright-v8">
+  <link rel="stylesheet" href="styles.css?v=replay-trails-v10">
 </head>
 <body>
   <header class="topbar">
@@ -46,13 +46,13 @@
           <div class="motion-hud" id="motionHud" aria-live="polite">
             <div class="hud-score"><span>即時穩定度</span><strong id="hudScore">—</strong><small id="hudTracking">等待 ROI</small></div>
             <div class="hud-directions" aria-label="2D 即時方向回饋">
-              <div id="pitchDirection"><span>上下 · Pitch*</span><b id="pitchArrow">•</b><small id="pitchValue">穩定</small></div>
-              <div id="yawDirection"><span>左右 · Image X*</span><b id="yawArrow">•</b><small id="yawValue">穩定</small></div>
+              <div id="pitchDirection"><span>手槍 ROI 上下</span><b id="pitchArrow">•</b><small id="pitchValue">穩定</small></div>
+              <div id="yawDirection"><span>手槍 ROI 前後*</span><b id="yawArrow">•</b><small id="yawValue">穩定</small></div>
               <div id="depthDirection"><span>軀幹前後*</span><b id="depthArrow">•</b><small id="depthValue">穩定</small></div>
-              <div id="rollDirection"><span>平面旋轉 · Roll*</span><b id="rollArrow">•</b><small id="rollValue">穩定</small></div>
             </div>
-            <small class="hud-limit">＊手機側面影像的 2D 方向估算，非真正 3D 姿態角</small>
+            <small class="hud-limit">＊前後為側面影像的水平位移，不是真正的 3D 深度</small>
           </div>
+          <div class="recording-badge hidden" id="recordingBadge"><i></i> REC・本次回放</div>
           <div class="empty-stage" id="emptyStage">
             <div class="target-illustration" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
             <h3>固定手機，從射手側面取景</h3>
@@ -89,22 +89,22 @@
             <div class="score-copy"><b id="scoreLabel">等待設定 ROI</b><p id="scoreHint">啟動相機後，點選槍口或準星附近作為主要追蹤區域。</p></div>
           </div>
           <div class="metric-grid">
-            <article class="primary-metric"><span>ROI 上下位移 RMS</span><strong id="roiRmsY">—</strong><small>畫面高度 %・主要指標</small></article>
-            <article><span>ROI 左右位移 RMS</span><strong id="roiRmsX">—</strong><small>畫面寬度 %</small></article>
-            <article><span>軀幹前後位移 RMS</span><strong id="foreAftRms">—</strong><small>軀幹長度 %・2D 側面估算</small></article>
+            <article class="primary-metric"><span>手槍 ROI 上下晃動量</span><strong id="roiRmsY">—</strong><small>越小越穩定・畫面高度 %</small></article>
+            <article><span>手槍 ROI 前後晃動量*</span><strong id="roiRmsX">—</strong><small>側面水平位移・畫面寬度 %</small></article>
+            <article><span>軀幹前後晃動量</span><strong id="foreAftRms">—</strong><small>軀幹長度 %・2D 側面估算</small></article>
             <article><span>肘角度</span><strong id="elbowAngle">—</strong><small>影像平面估算</small></article>
           </div>
-          <div class="secondary-metrics"><span>持槍手骨架 RMS <b id="wristRms">—</b></span><span>軀幹傾角 <b id="trunkAngle">—</b></span><span>ROI 綜合 RMS <b id="roiRms">—</b></span></div>
+          <div class="secondary-metrics"><span>持槍手骨架晃動量 <b id="wristRms">—</b></span><span>軀幹傾角 <b id="trunkAngle">—</b></span><span>ROI 綜合晃動量 <b id="roiRms">—</b></span></div>
         </section>
 
         <section class="panel trace-panel">
-          <div class="panel-heading compact"><div><p class="kicker">ROI MOVEMENT TRACE</p><h2>持槍部位軌跡</h2></div><span class="legend"><i></i>本次 20 秒</span></div>
+          <div class="panel-heading compact"><div><p class="kicker">ROI MOVEMENT TRACE</p><h2>手槍 ROI 晃動軌跡</h2></div><div class="trace-legends"><span class="legend vertical"><i></i>上下</span><span class="legend depth"><i></i>前後*</span></div></div>
           <div class="trace-plot">
-            <canvas id="traceCanvas" width="640" height="280" aria-label="晃動軌跡圖；水平為 X 軸左右位移，垂直為 Y 軸上下位移"></canvas>
+            <canvas id="traceCanvas" width="640" height="280" aria-label="手槍 ROI 晃動軌跡圖；綠色為上下晃動，紅色為側面畫面前後晃動"></canvas>
             <div class="trace-y-axis" aria-hidden="true"><span>↑ 上</span><b>Y 軸</b><span>下 ↓</span></div>
           </div>
-          <div class="trace-axis"><span>← 左</span><strong>X 軸・左右位移</strong><span>右 →</span></div>
-          <div class="trace-origin">以本次 ROI 平均位置為中心基準（0, 0）・上下位移為主要觀察方向</div>
+          <div class="trace-axis"><span>← 遠離</span><strong>側面畫面 X 軸・前後位移*</strong><span>靠近 →</span></div>
+          <div class="trace-origin">綠色＝上下晃動　紅色＝側面畫面中的前後晃動　＊不等同真正 3D 深度</div>
         </section>
       </aside>
     </section>
@@ -118,19 +118,20 @@
           <button class="button" id="exportButton" disabled>匯出 CSV</button>
         </div>
       </div>
-      <div class="results-empty" id="resultsEmpty">完成一次 20 秒分析後，這裡會整理 ROI 上下／左右位移、軌跡範圍，以及身體控制輔助指標。</div>
+      <div class="results-empty" id="resultsEmpty">完成一次 20 秒分析後，這裡會整理手槍 ROI 上下／前後晃動量、彩色軌跡、影像回放與身體控制指標。</div>
       <div class="results-content hidden" id="resultsContent">
         <div class="summary-section-title"><b>持槍部位穩定度</b><span>ROI 主要結果</span></div>
         <div class="summary-grid six">
-          <article class="primary-metric"><span>上下 RMS</span><strong id="summaryRoiY">—</strong></article>
-          <article><span>左右 RMS</span><strong id="summaryRoiX">—</strong></article>
-          <article><span>上下範圍</span><strong id="summaryRangeY">—</strong></article>
-          <article><span>左右範圍</span><strong id="summaryRangeX">—</strong></article>
+          <article class="primary-metric"><span>手槍 ROI 上下晃動量</span><strong id="summaryRoiY">—</strong></article>
+          <article><span>手槍 ROI 前後晃動量*</span><strong id="summaryRoiX">—</strong></article>
+          <article><span>上下最大範圍</span><strong id="summaryRangeY">—</strong></article>
+          <article><span>前後最大範圍*</span><strong id="summaryRangeX">—</strong></article>
           <article><span>軌跡長度</span><strong id="summaryPath">—</strong></article>
           <article><span>ROI 有效率</span><strong id="summaryQuality">—</strong></article>
         </div>
         <div class="summary-section-title secondary"><b>身體控制指標</b><span>骨架輔助判讀</span></div>
-        <div class="summary-grid three"><article><span>持槍手 RMS</span><strong id="summaryWrist">—</strong></article><article><span>肘角度變異</span><strong id="summaryElbow">—</strong></article><article><span>軀幹前後位移 RMS</span><strong id="summaryForeAft">—</strong></article></div>
+        <div class="summary-grid three"><article><span>持槍手晃動量</span><strong id="summaryWrist">—</strong></article><article><span>肘角度變異</span><strong id="summaryElbow">—</strong></article><article><span>軀幹前後晃動量</span><strong id="summaryForeAft">—</strong></article></div>
+        <section class="replay-panel" id="replayPanel"><div><b>本次 20 秒影像回放</b><span id="replayStatus">相機分析完成後可在此回放；影片只保留於目前裝置。</span></div><video id="sessionReplay" controls playsinline preload="metadata"></video></section>
         <div class="coach-note"><span aria-hidden="true">◎</span><div><b>教練觀察提示</b><p id="coachNote"></p></div></div>
         <p class="report-status" id="reportStatus" role="status"></p>
       </div>
@@ -141,7 +142,7 @@
       <div class="method-grid">
         <article><b>相對變化，不是假精密</b><p>角度可顯示小數，但精度受畫質、關鍵點信心與鏡頭穩定影響。適合比較同人、同機、同角度的趨勢。</p></article>
         <article><b>ROI 是主要結果</b><p>點選槍口或準星附近後，以局部影像樣板追蹤 20 秒微動；上下位移為主要觀察方向。若遮擋或畫面模糊，資料品質會下降。</p></article>
-        <article><b>方向箭頭是 2D 回饋</b><p>Pitch*、Image X*、軀幹前後*與 Roll* 是側面影像中的相對方向，不等同真正的 3D pitch、yaw、roll 或深度感測。</p></article>
+        <article><b>前後是側面畫面位移</b><p>手槍 ROI 前後與軀幹前後，是側面影像中的水平相對位移；用來觀察靠近或遠離方向的趨勢，不等同真正的 3D 深度。</p></article>
         <article><b>軀幹前後是 2D 估算</b><p>以側面影像中骨盆相對足部支撐基準的水平變化估算前後晃動，不等同 3D 深度位移或測力板結果。</p></article>
         <article><b>教練判讀優先</b><p>系統不判定技術好壞。請結合射擊結果、呼吸、扳機階段與教練觀察做判讀。</p></article>
       </div>
@@ -165,6 +166,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=footer-copyright-v8"></script>
+  <script type="module" src="app.js?v=replay-trails-v10"></script>
 </body>
 </html>
