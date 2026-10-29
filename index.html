@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=anonymous-feedback-v14">
+  <link rel="stylesheet" href="styles.css?v=video-import-v17">
 </head>
 <body>
   <header class="topbar">
@@ -36,7 +36,7 @@
     <section class="workspace">
       <div class="capture-card panel">
         <div class="panel-heading">
-          <div><p class="kicker">LIVE CAPTURE</p><h2>側面拍攝</h2></div>
+          <div><p class="kicker">LIVE / VIDEO ANALYSIS</p><h2>側面拍攝與影片分析</h2></div>
           <div class="quality-badge idle" id="qualityBadge"><span></span><b>等待畫面</b></div>
         </div>
 
@@ -65,10 +65,19 @@
 
         <div class="capture-controls">
           <button class="button primary" id="cameraButton"><span aria-hidden="true">●</span> 啟動相機</button>
+          <button class="button" id="uploadVideoButton">匯入影片</button>
+          <input id="videoFileInput" class="hidden" type="file" accept="video/*">
           <button class="button" id="demoButton">體驗示範</button>
           <button class="button" id="flipButton" disabled>切換鏡頭</button>
           <button class="button danger hidden" id="stopCameraButton">關閉相機</button>
         </div>
+
+        <section class="import-timeline hidden" id="importTimeline" aria-label="匯入影片分析區間">
+          <div class="timeline-heading"><div><b>選擇分析區間</b><small>拖曳起點與終點，或由 AI 建議舉槍完成到射擊結束的區間</small></div><button class="mini-button" id="aiRangeButton">AI 判別</button></div>
+          <div class="range-summary"><span>起點 <b id="rangeStartLabel">00:00.0</b></span><span>終點 <b id="rangeEndLabel">00:20.0</b></span><span>分析 <b id="rangeDurationLabel">20.0 秒</b></span></div>
+          <div class="dual-range"><div class="range-selection" id="rangeSelection"></div><i id="aiStartMarker"></i><i id="aiEndMarker"></i><input id="rangeStart" type="range" min="0" max="20" step="0.1" value="0" aria-label="分析起點"><input id="rangeEnd" type="range" min="0" max="20" step="0.1" value="20" aria-label="分析終點"></div>
+          <div class="timeline-actions"><button class="mini-button" id="previewStartButton">預覽起點</button><button class="mini-button" id="previewRangeButton">播放選取區間</button><span id="aiRangeStatus">影片僅在本機處理，不會上傳。</span></div>
+        </section>
 
         <button class="session-button capture-session-button" id="sessionButton" disabled><span>開始 20 秒分析</span><small>先倒數 3 秒，再正式記錄 20 秒 ROI 持槍部位軌跡</small></button>
 
@@ -79,7 +88,7 @@
           <label>身高估算尺規
             <input id="bodyHeight" type="number" inputmode="decimal" min="120" max="220" value="170" aria-label="選手身高公分"> cm
           </label>
-          <span class="fixed-duration"><b>20 秒</b><small>正式分析時間</small></span>
+          <span class="fixed-duration"><b id="analysisDuration">20 秒</b><small>正式分析時間</small></span>
           <label class="toggle-label"><input type="checkbox" id="skeletonToggle" checked><span></span> 顯示骨架</label>
         </div>
       </div>
@@ -193,6 +202,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=entry-top-v15"></script>
+  <script type="module" src="app.js?v=video-import-v17"></script>
 </body>
 </html>
