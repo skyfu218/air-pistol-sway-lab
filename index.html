@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=replay-hud-trails-v26">
+  <link rel="stylesheet" href="styles.css?v=roi-movement-trace-v27">
 </head>
 <body>
   <header class="topbar">
@@ -115,13 +115,13 @@
         </section>
 
         <section class="panel trace-panel">
-          <div class="panel-heading compact"><div><p class="kicker">VECTOR DENSITY TRACE</p><h2>手槍 ROI 向量質心軌跡</h2></div><div class="trace-legends"><span class="legend vertical"><i></i>高停留密度＝粗線</span></div></div>
+          <div class="panel-heading compact"><div><p class="kicker">ROI MOVEMENT TRACE</p><h2>手槍 ROI 軌跡移動紀錄</h2></div><div class="trace-legends"><span class="legend vertical"><i></i>完整移動路徑</span></div></div>
           <div class="trace-plot">
-            <canvas id="traceCanvas" width="640" height="280" aria-label="手槍 ROI 完整二維向量密度軌跡圖；水平為側面前後方向，垂直為上下方向"></canvas>
+            <canvas id="traceCanvas" width="640" height="280" aria-label="手槍 ROI 完整二維移動軌跡紀錄圖；水平為側面前後方向，垂直為上下方向"></canvas>
             <div class="trace-y-axis" aria-hidden="true"><span>↑ 上</span><b>Y 軸</b><span>下 ↓</span></div>
           </div>
           <div class="trace-axis"><span>← 遠離</span><strong>X 軸・估算公分</strong><span>靠近 →</span></div>
-          <div class="trace-origin">完整分析區間 X–Y 向量路徑・線條越粗代表該區域停留越多・尺規依輸入身高估算</div>
+          <div class="trace-origin">完整分析區間 X–Y 移動路徑・綠點為起點・白點為終點・尺規依輸入身高估算</div>
         </section>
       </aside>
     </section>
@@ -207,6 +207,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=replay-hud-trails-v26"></script>
+  <script type="module" src="app.js?v=roi-movement-trace-v27"></script>
 </body>
 </html>
