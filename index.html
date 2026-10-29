@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=video-import-stability-v22">
+  <link rel="stylesheet" href="styles.css?v=video-range-analysis-v23">
 </head>
 <body>
   <header class="topbar">
@@ -121,7 +121,7 @@
             <div class="trace-y-axis" aria-hidden="true"><span>↑ 上</span><b>Y 軸</b><span>下 ↓</span></div>
           </div>
           <div class="trace-axis"><span>← 遠離</span><strong>X 軸・估算公分</strong><span>靠近 →</span></div>
-          <div class="trace-origin">完整 20 秒 X–Y 向量路徑・線條越粗代表該區域停留越多・尺規依輸入身高估算</div>
+          <div class="trace-origin">完整分析區間 X–Y 向量路徑・線條越粗代表該區域停留越多・尺規依輸入身高估算</div>
         </section>
       </aside>
     </section>
@@ -135,7 +135,7 @@
           <button class="button" id="exportButton" disabled>匯出 CSV</button>
         </div>
       </div>
-      <div class="results-empty" id="resultsEmpty">完成一次 20 秒分析後，這裡會整理手槍 ROI 上下／前後晃動量、彩色軌跡、影像回放與身體控制指標。</div>
+      <div class="results-empty" id="resultsEmpty">完成一次分析後，這裡會整理手槍 ROI 上下／前後晃動量、完整區間軌跡、影像回放與身體控制指標。</div>
       <div class="results-content hidden" id="resultsContent">
         <div class="summary-section-title"><b>持槍部位穩定度</b><span>ROI 主要結果</span></div>
         <div class="summary-grid six">
@@ -148,7 +148,7 @@
         </div>
         <div class="summary-section-title secondary"><b>身體控制指標</b><span>骨架輔助判讀</span></div>
         <div class="summary-grid three"><article><span>持槍手晃動量</span><strong id="summaryWrist">—</strong></article><article><span>肘角度變異</span><strong id="summaryElbow">—</strong></article><article><span>軀幹前後晃動量</span><strong id="summaryForeAft">—</strong></article><article><span>2D 質心移動範圍</span><strong id="summaryComRange">—</strong></article><article><span>持槍手肘移動範圍</span><strong id="summaryElbowRange">—</strong></article></div>
-        <section class="replay-panel" id="replayPanel"><div><b>本次 20 秒影像回放</b><span id="replayStatus">相機分析完成後可在此回放；影片只保留於目前裝置。</span></div><video id="sessionReplay" controls playsinline preload="metadata"></video></section>
+        <section class="replay-panel" id="replayPanel"><div><b>本次分析區間影像回放</b><span id="replayStatus">分析完成後可在此回放；影片只保留於目前裝置。</span></div><video id="sessionReplay" controls playsinline preload="metadata"></video></section>
         <div class="coach-note"><span aria-hidden="true">◎</span><div><b>教練觀察提示</b><p id="coachNote"></p></div></div>
         <p class="report-status" id="reportStatus" role="status"></p>
       </div>
@@ -207,6 +207,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=video-import-stability-v22"></script>
+  <script type="module" src="app.js?v=video-range-analysis-v23"></script>
 </body>
 </html>
