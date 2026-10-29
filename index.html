@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=roi-movement-trace-v27">
+  <link rel="stylesheet" href="styles.css?v=anatomical-elbow-angle-v28">
 </head>
 <body>
   <header class="topbar">
@@ -109,7 +109,7 @@
             <article class="primary-metric"><span>手槍 ROI 上下晃動量</span><strong id="roiRmsY">—</strong><small>越小越穩定・畫面高度 %</small></article>
             <article><span>手槍 ROI 前後晃動量*</span><strong id="roiRmsX">—</strong><small>側面水平位移・畫面寬度 %</small></article>
             <article><span>軀幹前後晃動量</span><strong id="foreAftRms">—</strong><small>軀幹長度 %・2D 側面估算</small></article>
-            <article><span>肘角度</span><strong id="elbowAngle">—</strong><small>影像平面估算</small></article>
+            <article><span>肘關節屈曲角度</span><strong id="elbowAngle">—</strong><small>完全伸直＝0°・影像平面估算</small></article>
           </div>
           <div class="secondary-metrics"><span>持槍手骨架晃動量 <b id="wristRms">—</b></span><span>軀幹傾角 <b id="trunkAngle">—</b></span><span>ROI 綜合晃動量 <b id="roiRms">—</b></span></div>
         </section>
@@ -147,7 +147,7 @@
           <article><span>ROI 有效率</span><strong id="summaryQuality">—</strong></article>
         </div>
         <div class="summary-section-title secondary"><b>身體控制指標</b><span>骨架輔助判讀</span></div>
-        <div class="summary-grid three"><article><span>持槍手晃動量</span><strong id="summaryWrist">—</strong></article><article><span>肘角度變異</span><strong id="summaryElbow">—</strong></article><article><span>軀幹前後晃動量</span><strong id="summaryForeAft">—</strong></article><article><span>2D 質心移動範圍</span><strong id="summaryComRange">—</strong></article><article><span>持槍手肘移動範圍</span><strong id="summaryElbowRange">—</strong></article></div>
+        <div class="summary-grid three"><article><span>持槍手晃動量</span><strong id="summaryWrist">—</strong></article><article><span>肘關節屈曲角度變異</span><strong id="summaryElbow">—</strong><small>完全伸直＝0°</small></article><article><span>軀幹前後晃動量</span><strong id="summaryForeAft">—</strong></article><article><span>2D 質心移動範圍</span><strong id="summaryComRange">—</strong></article><article><span>持槍手肘移動範圍</span><strong id="summaryElbowRange">—</strong></article></div>
         <section class="replay-panel" id="replayPanel"><div class="replay-copy"><b>本次分析區間影像回放</b><span id="replayStatus">分析完成後可在此回放；影片只保留於目前裝置。</span><div class="replay-actions"><button class="button line-button" id="replayShareButton" disabled>LINE 分享影片</button><button class="button" id="replayDownloadButton" disabled>下載影片</button></div></div><video id="sessionReplay" controls playsinline preload="metadata"></video></section>
         <div class="coach-note"><span aria-hidden="true">◎</span><div><b>教練觀察提示</b><p id="coachNote"></p></div></div>
         <p class="report-status" id="reportStatus" role="status"></p>
@@ -207,6 +207,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=roi-movement-trace-v27"></script>
+  <script type="module" src="app.js?v=anatomical-elbow-angle-v28"></script>
 </body>
 </html>
