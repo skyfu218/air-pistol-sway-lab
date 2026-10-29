@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=camera-start-v19">
+  <link rel="stylesheet" href="styles.css?v=samsung-camera-v20">
 </head>
 <body>
   <header class="topbar">
@@ -61,6 +61,11 @@
           <div class="stage-guide" id="stageGuide">點一下槍口／準星位置，建立 ROI 追蹤</div>
           <div class="model-loading hidden" id="modelLoading"><span class="spinner"></span>姿態模型載入中…</div>
           <div class="countdown-overlay hidden" id="countdownOverlay" aria-live="assertive"><small>準備倒數</small><strong id="countdownValue">3</strong><span>倒數期間不記錄</span></div>
+          <div class="camera-notice hidden" id="cameraNotice" role="alert">
+            <b id="cameraNoticeTitle">無法啟動相機</b>
+            <p id="cameraNoticeText"></p>
+            <button class="button primary" id="cameraRetryButton" type="button">重新嘗試</button>
+          </div>
         </div>
 
         <div class="capture-controls">
@@ -202,6 +207,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=camera-start-v19"></script>
+  <script type="module" src="app.js?v=samsung-camera-v20"></script>
 </body>
 </html>

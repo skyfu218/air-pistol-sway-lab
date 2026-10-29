@@ -12,7 +12,7 @@ let sourceMode="idle",uploadedVideoUrl=null,importedRange={start:0,end:SESSION_S
 
 const firebaseConfig={apiKey:"AIzaSyCkTj7LNT-0b_HxpBdLvjsRs0owpLUktSg",authDomain:"pulselens-fitness-skyfu218.firebaseapp.com",databaseURL:"https://pulselens-fitness-skyfu218-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"pulselens-fitness-skyfu218",appId:"1:332795924692:web:6809bae858b1eb15fdab41"};
 let statsRef=null,privateRef=null,usageRunTransaction=null,dbPush=null,dbSet=null;
-const AUDIENCE_KEY="aimtraceAudienceV1",APP_VERSION="camera-start-v19",allowedRoles=["教練","選手","運科人員","防護人員","體能訓練師","家長","其他"];
+const AUDIENCE_KEY="aimtraceAudienceV1",APP_VERSION="samsung-camera-v20",allowedRoles=["教練","選手","運科人員","防護人員","體能訓練師","家長","其他"];
 function storedAudience(){try{return JSON.parse(localStorage.getItem(AUDIENCE_KEY)||"null")}catch{return null}}
 async function initUsageStats(){try{const[{initializeApp},{getDatabase,onValue,push,ref,runTransaction,set}]=await Promise.all([import("https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"),import("https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js")]);usageRunTransaction=runTransaction;dbPush=push;dbSet=set;const db=getDatabase(initializeApp(firebaseConfig));statsRef=ref(db,"publicStats/aimtrace");privateRef=ref(db,"privateSubmissions/aimtrace");onValue(statsRef,snapshot=>{const value=snapshot.val()||{};els.usageOpens.textContent=Number(value.opens||0).toLocaleString("zh-TW");els.usageStarts.textContent=Number(value.starts||0).toLocaleString("zh-TW");els.usageCompletions.textContent=Number(value.completions||0).toLocaleString("zh-TW");els.usageStatus.textContent="跨裝置匿名累積統計"},()=>{els.usageStatus.textContent="統計服務暫時無法連線"});await incrementUsage("opens")}catch(error){console.warn("Usage stats unavailable",error);els.usageStatus.textContent="統計服務準備中"}}
 async function incrementUsage(field){if(!statsRef||!usageRunTransaction)return;try{await usageRunTransaction(statsRef,current=>{const next=current&&typeof current==="object"?current:{opens:0,starts:0,completions:0};next.opens=Number(next.opens||0);next.starts=Number(next.starts||0);next.completions=Number(next.completions||0);next[field]+=1;next.updatedAt=Date.now();return next})}catch(error){console.warn(`Unable to increment ${field}`,error)}}
@@ -59,19 +59,14 @@ async function loadModel(){
   }catch(error){console.error(error);error.aimtraceStage="model";setQuality("bad","姿態分析載入失敗");throw error}
   finally{els.modelLoading.classList.add("hidden")}
 }
-function cameraConstraints(){return[
-  {video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}},audio:false},
-  {video:{facingMode:{ideal:facing},width:{ideal:960},height:{ideal:540}},audio:false},
-  {video:{facingMode:{ideal:facing}},audio:false},
-  {video:true,audio:false}
-]}
+function cameraConstraints(){const minimal={video:{facingMode:{ideal:facing}},audio:false},basic={video:true,audio:false},hd={video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}},audio:false},medium={video:{facingMode:{ideal:facing},width:{ideal:960},height:{ideal:540}},audio:false};return /Android|SamsungBrowser/i.test(navigator.userAgent)?[minimal,basic,medium,hd]:[hd,medium,minimal,basic]}
 async function openCameraStream(){
   if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia)throw new DOMException("瀏覽器不支援安全相機功能","NotSupportedError");
   let lastError;
   for(const constraints of cameraConstraints()){
     try{return await navigator.mediaDevices.getUserMedia(constraints)}catch(error){
       lastError=error;
-      if(["NotAllowedError","SecurityError","NotFoundError","NotReadableError"].includes(error.name))break;
+      if(["NotAllowedError","SecurityError","NotFoundError"].includes(error.name))break;
       console.warn("Camera constraints unavailable; retrying with simpler settings",error);
     }
   }
@@ -87,16 +82,17 @@ function cameraErrorMessage(error){
   };
   return messages[error?.name]||"相機啟動失敗。請關閉其他會用到相機的 App，並用最新版 Android Chrome 重新嘗試。"
 }
+function hideCameraNotice(){$("cameraNotice").classList.add("hidden")}
+function showCameraNotice(error){const isSamsung=/SamsungBrowser/i.test(navigator.userAgent),isAndroid=/Android/i.test(navigator.userAgent),modelError=error?.aimtraceStage==="model";let message=modelError?"請確認網路連線後重試。已保留相機預覽，但分析前需完成姿態模型載入。":cameraErrorMessage(error);if(isAndroid&&["NotAllowedError","SecurityError"].includes(error?.name))message+=isSamsung?" Samsung Internet：請在網址列的網站權限中將「相機」設為允許；若從 LINE／Facebook 開啟，請改用「在 Samsung Internet 或 Chrome 開啟」。":" 請在網址列的網站權限中允許相機。";$("cameraNoticeTitle").textContent=modelError?"相機已開啟，但分析器載入失敗":"相機尚未開啟";$("cameraNoticeText").textContent=message;$("cameraNotice").classList.remove("hidden")}
 async function startCamera(){
-  if(running)stopCamera();sourceMode="camera";demo=false;els.cameraButton.disabled=true;els.scoreHint.textContent="正在開啟相機…";
+  if(running||stream)stopCamera();hideCameraNotice();sourceMode="camera";demo=false;els.cameraButton.disabled=true;els.cameraButton.textContent="正在開啟相機…";els.scoreHint.textContent="正在開啟相機…";
   try{
-    stream=await openCameraStream();els.video.srcObject=stream;els.video.muted=true;els.video.playsInline=true;await els.video.play();
-    await loadModel();running=true;els.emptyStage.classList.add("hidden");els.stageGuide.style.display="block";els.stageGuide.classList.remove("attention");els.stageGuide.textContent="點一下槍口／準星位置，建立 ROI 追蹤";els.cameraButton.classList.add("hidden");els.uploadVideoButton.classList.add("hidden");els.demoButton.classList.add("hidden");els.stopCameraButton.classList.remove("hidden");els.flipButton.disabled=false;resetCalibration();resizeOverlay();loop()
+    stream=await openCameraStream();els.video.srcObject=stream;els.video.muted=true;els.video.setAttribute("playsinline","");els.video.setAttribute("webkit-playsinline","");await els.video.play();running=true;els.emptyStage.classList.add("hidden");els.stageGuide.style.display="block";els.stageGuide.classList.remove("attention");els.stageGuide.textContent="相機已開啟｜正在載入姿態分析，請稍候…";els.cameraButton.classList.add("hidden");els.uploadVideoButton.classList.add("hidden");els.demoButton.classList.add("hidden");els.stopCameraButton.classList.remove("hidden");els.flipButton.disabled=false;resetCalibration();resizeOverlay()
   }catch(error){
     console.error(error);stream?.getTracks().forEach(track=>track.stop());stream=null;els.video.srcObject=null;
-    if(error?.aimtraceStage==="model"){setQuality("bad","姿態分析載入失敗");els.scoreHint.textContent="相機已可開啟，但姿態分析下載失敗。請確認網路後重新嘗試，或先使用體驗示範。"}
-    else{setQuality("bad","無法啟動相機");els.scoreHint.textContent=cameraErrorMessage(error)}
-  }finally{els.cameraButton.disabled=false}
+    setQuality("bad","無法啟動相機");els.scoreHint.textContent=cameraErrorMessage(error);showCameraNotice(error);els.cameraButton.disabled=false;els.cameraButton.innerHTML='<span aria-hidden="true">●</span> 啟動相機';return
+  }
+  try{await loadModel();els.stageGuide.textContent="點一下槍口／準星位置，建立 ROI 追蹤";loop()}catch(error){running=false;setQuality("bad","姿態分析載入失敗");els.scoreHint.textContent="相機已開啟，但姿態分析下載失敗。請確認網路後重新嘗試。";showCameraNotice(error)}finally{els.cameraButton.disabled=false;els.cameraButton.innerHTML='<span aria-hidden="true">●</span> 啟動相機'}
 }
 function stopCamera(){cancelCountdown();stopSessionRecording();sessionActive=false;running=false;demo=false;previewingRange=false;cleanupSource();els.video.style.display="block";els.importTimeline.classList.add("hidden");els.emptyStage.classList.remove("hidden");els.stageGuide.style.display="none";els.cameraButton.classList.remove("hidden");els.uploadVideoButton.classList.remove("hidden");els.demoButton.classList.remove("hidden");els.stopCameraButton.classList.add("hidden");els.flipButton.disabled=true;els.sessionButton.disabled=true;els.analysisDuration.textContent=`${SESSION_SECONDS} 秒`;setQuality("idle","等待畫面");ctx.clearRect(0,0,els.overlay.width,els.overlay.height)}
 async function flipCamera(){facing=facing==="environment"?"user":"environment";stopCamera();await startCamera()}
@@ -150,4 +146,5 @@ async function shareReport(){try{els.reportStatus.className="report-status";els.
 
 els.overlay.addEventListener("pointerdown",event=>{if(!running||sessionActive||countdownActive)return;const r=els.overlay.getBoundingClientRect();roi={x:event.clientX-r.left,y:event.clientY-r.top,score:1};roiTemplate=null;ctx.clearRect(0,0,els.overlay.clientWidth,els.overlay.clientHeight);drawROI(roi);els.stageGuide.classList.remove("attention");els.stageGuide.textContent="ROI 已設定｜十字為追蹤中心，水平線為上下晃動基準";setQuality("good","ROI 已設定");updateStartAvailability()});
 els.cameraButton.addEventListener("click",startCamera);els.uploadVideoButton.addEventListener("click",()=>els.videoFileInput.click());els.videoFileInput.addEventListener("change",event=>startUploadedVideo(event.target.files?.[0]));els.rangeStart.addEventListener("input",()=>updateRangeUI("start"));els.rangeEnd.addEventListener("input",()=>updateRangeUI("end"));els.previewStartButton.addEventListener("click",async()=>{if(sourceMode!=="upload")return;els.video.pause();previewingRange=false;await seekVideo(importedRange.start)});els.previewRangeButton.addEventListener("click",async()=>{if(sourceMode!=="upload")return;await seekVideo(importedRange.start);previewingRange=true;els.video.play()});els.aiRangeButton.addEventListener("click",suggestImportedRange);els.demoButton.addEventListener("click",startDemo);els.stopCameraButton.addEventListener("click",stopCamera);els.flipButton.addEventListener("click",flipCamera);els.sessionButton.addEventListener("click",startCountdown);els.resetButton.addEventListener("click",resetCalibration);els.reportButton.addEventListener("click",downloadReport);els.shareButton.addEventListener("click",shareReport);els.exportButton.addEventListener("click",exportCSV);els.helpButton.addEventListener("click",()=>els.helpDialog.showModal());els.closeHelp.addEventListener("click",()=>els.helpDialog.close());els.audienceForm.addEventListener("submit",saveAudience);els.feedbackForm.addEventListener("submit",submitFeedback);els.feedbackEmail.addEventListener("click",emailFeedback);els.audienceDialog.addEventListener("cancel",event=>event.preventDefault());window.addEventListener("resize",resizeOverlay);window.addEventListener("beforeunload",cleanupSource);
+$("cameraRetryButton").addEventListener("click",startCamera);
 resizeOverlay();drawTrace([]);initUsageStats();showAudienceGate();
