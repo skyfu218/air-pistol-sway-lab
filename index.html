@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=coach-report-v34">
+  <link rel="stylesheet" href="styles.css?v=roi-timeline-v35">
 </head>
 <body>
   <header class="topbar">
@@ -151,7 +151,7 @@
         <section class="coach-timeline" aria-labelledby="timelineTitle">
           <div class="timeline-title"><div><p class="kicker">COACH REVIEW TIMELINE</p><h3 id="timelineTitle">穩定度與射擊階段影像推估</h3></div><span id="phaseConfidence" class="confidence-badge">等待分析</span></div>
           <canvas id="stabilityTimeline" width="960" height="330" aria-label="分析區間穩定度、追蹤品質與射擊階段時間軸"></canvas>
-          <div class="timeline-legend"><span><i class="raw"></i>瞬間穩定度</span><span><i class="smooth"></i>平滑趨勢</span><span><i class="quality"></i>追蹤品質</span><span><i class="shot"></i>擊發反應候選</span></div>
+          <div class="timeline-legend"><span><i class="raw"></i>瞬間穩定度</span><span><i class="smooth"></i>平滑趨勢</span><span><i class="quality"></i>追蹤品質</span><span><i class="roi-y"></i>ROI 上下（＋下／－上）</span><span><i class="roi-x"></i>ROI 左右（＋右／－左）</span><span><i class="shot"></i>擊發反應候選</span></div>
           <div class="phase-metrics">
             <article><span>進入穩定所需時間</span><strong id="timeToStable">—</strong></article>
             <article><span>最長穩定區間</span><strong id="stableWindow">—</strong></article>
@@ -228,6 +228,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=coach-report-v34"></script>
+  <script type="module" src="app.js?v=roi-timeline-v35"></script>
 </body>
 </html>
