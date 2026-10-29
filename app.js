@@ -12,7 +12,7 @@ let sourceMode="idle",uploadedVideoUrl=null,importedRange={start:0,end:SESSION_S
 
 const firebaseConfig={apiKey:"AIzaSyCkTj7LNT-0b_HxpBdLvjsRs0owpLUktSg",authDomain:"pulselens-fitness-skyfu218.firebaseapp.com",databaseURL:"https://pulselens-fitness-skyfu218-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"pulselens-fitness-skyfu218",appId:"1:332795924692:web:6809bae858b1eb15fdab41"};
 let statsRef=null,privateRef=null,usageRunTransaction=null,dbPush=null,dbSet=null;
-const AUDIENCE_KEY="aimtraceAudienceV1",APP_VERSION="samsung-camera-v20",allowedRoles=["教練","選手","運科人員","防護人員","體能訓練師","家長","其他"];
+const AUDIENCE_KEY="aimtraceAudienceV1",APP_VERSION="camera-timeout-v21",allowedRoles=["教練","選手","運科人員","防護人員","體能訓練師","家長","其他"];
 function storedAudience(){try{return JSON.parse(localStorage.getItem(AUDIENCE_KEY)||"null")}catch{return null}}
 async function initUsageStats(){try{const[{initializeApp},{getDatabase,onValue,push,ref,runTransaction,set}]=await Promise.all([import("https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"),import("https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js")]);usageRunTransaction=runTransaction;dbPush=push;dbSet=set;const db=getDatabase(initializeApp(firebaseConfig));statsRef=ref(db,"publicStats/aimtrace");privateRef=ref(db,"privateSubmissions/aimtrace");onValue(statsRef,snapshot=>{const value=snapshot.val()||{};els.usageOpens.textContent=Number(value.opens||0).toLocaleString("zh-TW");els.usageStarts.textContent=Number(value.starts||0).toLocaleString("zh-TW");els.usageCompletions.textContent=Number(value.completions||0).toLocaleString("zh-TW");els.usageStatus.textContent="跨裝置匿名累積統計"},()=>{els.usageStatus.textContent="統計服務暫時無法連線"});await incrementUsage("opens")}catch(error){console.warn("Usage stats unavailable",error);els.usageStatus.textContent="統計服務準備中"}}
 async function incrementUsage(field){if(!statsRef||!usageRunTransaction)return;try{await usageRunTransaction(statsRef,current=>{const next=current&&typeof current==="object"?current:{opens:0,starts:0,completions:0};next.opens=Number(next.opens||0);next.starts=Number(next.starts||0);next.completions=Number(next.completions||0);next[field]+=1;next.updatedAt=Date.now();return next})}catch(error){console.warn(`Unable to increment ${field}`,error)}}
@@ -60,13 +60,23 @@ async function loadModel(){
   finally{els.modelLoading.classList.add("hidden")}
 }
 function cameraConstraints(){const minimal={video:{facingMode:{ideal:facing}},audio:false},basic={video:true,audio:false},hd={video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720},frameRate:{ideal:30}},audio:false},medium={video:{facingMode:{ideal:facing},width:{ideal:960},height:{ideal:540}},audio:false};return /Android|SamsungBrowser/i.test(navigator.userAgent)?[minimal,basic,medium,hd]:[hd,medium,minimal,basic]}
+function requestCameraWithTimeout(constraints,timeoutMs=10000){
+  return new Promise((resolve,reject)=>{
+    let settled=false;
+    const timer=setTimeout(()=>{settled=true;reject(new DOMException("相機請求逾時，瀏覽器沒有回應","TimeoutError"))},timeoutMs);
+    navigator.mediaDevices.getUserMedia(constraints).then(candidate=>{
+      if(settled){candidate.getTracks().forEach(track=>track.stop());return}
+      settled=true;clearTimeout(timer);resolve(candidate)
+    }).catch(error=>{if(settled)return;settled=true;clearTimeout(timer);reject(error)})
+  })
+}
 async function openCameraStream(){
   if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia)throw new DOMException("瀏覽器不支援安全相機功能","NotSupportedError");
   let lastError;
   for(const constraints of cameraConstraints()){
-    try{return await navigator.mediaDevices.getUserMedia(constraints)}catch(error){
+    try{return await requestCameraWithTimeout(constraints)}catch(error){
       lastError=error;
-      if(["NotAllowedError","SecurityError","NotFoundError"].includes(error.name))break;
+      if(["NotAllowedError","SecurityError","NotFoundError","TimeoutError"].includes(error.name))break;
       console.warn("Camera constraints unavailable; retrying with simpler settings",error);
     }
   }
@@ -78,16 +88,18 @@ function cameraErrorMessage(error){
     SecurityError:"瀏覽器的安全設定已阻擋相機。請改用 Android Chrome 並確認網站相機權限。",
     NotFoundError:"找不到可使用的相機。請確認裝置有相機，或改用 Android Chrome。",
     NotReadableError:"相機可能正被其他 App 使用。請關閉相機、LINE 或視訊 App 後再試。",
-    NotSupportedError:"這個瀏覽器不支援網頁相機。請使用最新版 Android Chrome 開啟。"
+    NotSupportedError:"這個瀏覽器不支援網頁相機。請使用最新版 Android Chrome 開啟。",
+    TimeoutError:"瀏覽器等待相機超過 10 秒仍沒有回應。請先關閉其他相機 App，再到 Samsung Internet 的網站權限允許相機；若仍無反應，請改用 Chrome 開啟。"
   };
   return messages[error?.name]||"相機啟動失敗。請關閉其他會用到相機的 App，並用最新版 Android Chrome 重新嘗試。"
 }
 function hideCameraNotice(){$("cameraNotice").classList.add("hidden")}
-function showCameraNotice(error){const isSamsung=/SamsungBrowser/i.test(navigator.userAgent),isAndroid=/Android/i.test(navigator.userAgent),modelError=error?.aimtraceStage==="model";let message=modelError?"請確認網路連線後重試。已保留相機預覽，但分析前需完成姿態模型載入。":cameraErrorMessage(error);if(isAndroid&&["NotAllowedError","SecurityError"].includes(error?.name))message+=isSamsung?" Samsung Internet：請在網址列的網站權限中將「相機」設為允許；若從 LINE／Facebook 開啟，請改用「在 Samsung Internet 或 Chrome 開啟」。":" 請在網址列的網站權限中允許相機。";$("cameraNoticeTitle").textContent=modelError?"相機已開啟，但分析器載入失敗":"相機尚未開啟";$("cameraNoticeText").textContent=message;$("cameraNotice").classList.remove("hidden")}
+function showCameraWaiting(){$("cameraNoticeTitle").textContent="正在等待 Samsung 相機權限";$("cameraNoticeText").textContent="請留意手機是否跳出「允許使用相機」。若 10 秒內沒有任何回應，系統會自動顯示診斷與處理方式。";$("cameraRetryButton").classList.add("hidden");$("cameraNotice").classList.remove("hidden")}
+function showCameraNotice(error){const isSamsung=/SamsungBrowser/i.test(navigator.userAgent),isAndroid=/Android/i.test(navigator.userAgent),modelError=error?.aimtraceStage==="model";let message=modelError?"請確認網路連線後重試。已保留相機預覽，但分析前需完成姿態模型載入。":cameraErrorMessage(error);if(isAndroid&&["NotAllowedError","SecurityError"].includes(error?.name))message+=isSamsung?" Samsung Internet：請在網址列的網站權限中將「相機」設為允許；若從 LINE／Facebook 開啟，請改用「在 Samsung Internet 或 Chrome 開啟」。":" 請在網址列的網站權限中允許相機。";$("cameraNoticeTitle").textContent=modelError?"相機已開啟，但分析器載入失敗":"相機尚未開啟";$("cameraNoticeText").textContent=message;$("cameraRetryButton").classList.remove("hidden");$("cameraNotice").classList.remove("hidden")}
 async function startCamera(){
-  if(running||stream)stopCamera();hideCameraNotice();sourceMode="camera";demo=false;els.cameraButton.disabled=true;els.cameraButton.textContent="正在開啟相機…";els.scoreHint.textContent="正在開啟相機…";
+  if(running||stream)stopCamera();hideCameraNotice();showCameraWaiting();sourceMode="camera";demo=false;els.cameraButton.disabled=true;els.cameraButton.textContent="正在開啟相機…";els.scoreHint.textContent="正在開啟相機…";
   try{
-    stream=await openCameraStream();els.video.srcObject=stream;els.video.muted=true;els.video.setAttribute("playsinline","");els.video.setAttribute("webkit-playsinline","");await els.video.play();running=true;els.emptyStage.classList.add("hidden");els.stageGuide.style.display="block";els.stageGuide.classList.remove("attention");els.stageGuide.textContent="相機已開啟｜正在載入姿態分析，請稍候…";els.cameraButton.classList.add("hidden");els.uploadVideoButton.classList.add("hidden");els.demoButton.classList.add("hidden");els.stopCameraButton.classList.remove("hidden");els.flipButton.disabled=false;resetCalibration();resizeOverlay()
+    stream=await openCameraStream();hideCameraNotice();els.video.srcObject=stream;els.video.muted=true;els.video.setAttribute("playsinline","");els.video.setAttribute("webkit-playsinline","");await els.video.play();running=true;els.emptyStage.classList.add("hidden");els.stageGuide.style.display="block";els.stageGuide.classList.remove("attention");els.stageGuide.textContent="相機已開啟｜正在載入姿態分析，請稍候…";els.cameraButton.classList.add("hidden");els.uploadVideoButton.classList.add("hidden");els.demoButton.classList.add("hidden");els.stopCameraButton.classList.remove("hidden");els.flipButton.disabled=false;resetCalibration();resizeOverlay()
   }catch(error){
     console.error(error);stream?.getTracks().forEach(track=>track.stop());stream=null;els.video.srcObject=null;
     setQuality("bad","無法啟動相機");els.scoreHint.textContent=cameraErrorMessage(error);showCameraNotice(error);els.cameraButton.disabled=false;els.cameraButton.innerHTML='<span aria-hidden="true">●</span> 啟動相機';return
