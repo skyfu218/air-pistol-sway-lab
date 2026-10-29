@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=roi-screen-direction-v32">
+  <link rel="stylesheet" href="styles.css?v=coach-phase-timeline-v33">
 </head>
 <body>
   <header class="topbar">
@@ -148,6 +148,26 @@
         </div>
         <div class="summary-section-title secondary"><b>身體控制指標</b><span>骨架輔助判讀</span></div>
         <div class="summary-grid three"><article><span>持槍手晃動量</span><strong id="summaryWrist">—</strong></article><article><span>肘關節屈曲角度變異</span><strong id="summaryElbow">—</strong><small>完全伸直＝0°</small></article><article><span>軀幹前後晃動量</span><strong id="summaryForeAft">—</strong></article><article><span>2D 質心移動範圍</span><strong id="summaryComRange">—</strong></article><article><span>持槍手肘移動範圍</span><strong id="summaryElbowRange">—</strong></article></div>
+        <section class="coach-timeline" aria-labelledby="timelineTitle">
+          <div class="timeline-title"><div><p class="kicker">COACH REVIEW TIMELINE</p><h3 id="timelineTitle">穩定度與射擊階段影像推估</h3></div><span id="phaseConfidence" class="confidence-badge">等待分析</span></div>
+          <canvas id="stabilityTimeline" width="960" height="330" aria-label="分析區間穩定度、追蹤品質與射擊階段時間軸"></canvas>
+          <div class="timeline-legend"><span><i class="raw"></i>瞬間穩定度</span><span><i class="smooth"></i>平滑趨勢</span><span><i class="quality"></i>追蹤品質</span><span><i class="shot"></i>擊發反應候選</span></div>
+          <div class="phase-metrics">
+            <article><span>進入穩定所需時間</span><strong id="timeToStable">—</strong></article>
+            <article><span>最長穩定區間</span><strong id="stableWindow">—</strong></article>
+            <article><span>高穩定維持時間</span><strong id="stableDuration">—</strong></article>
+            <article><span>最佳穩定度</span><strong id="bestStability">—</strong></article>
+            <article><span>最後階段趨勢</span><strong id="finalTrend">—</strong></article>
+            <article><span>擊發反應候選</span><strong id="shotCandidate">—</strong></article>
+          </div>
+          <div class="phase-editor" aria-label="教練人工調整射擊階段">
+            <label>建立姿勢結束 <output id="buildEndValue">—</output><input id="buildEndControl" type="range" min="0" max="20" step="0.1"></label>
+            <label>穩定瞄準開始 <output id="stableStartValue">—</output><input id="stableStartControl" type="range" min="0" max="20" step="0.1"></label>
+            <label>穩定瞄準結束 <output id="stableEndValue">—</output><input id="stableEndControl" type="range" min="0" max="20" step="0.1"></label>
+            <label>擊發候選時間 <output id="shotTimeValue">—</output><input id="shotTimeControl" type="range" min="0" max="20" step="0.1"></label>
+          </div>
+          <p class="timeline-boundary"><b>最終穩定瞄準候選區間</b>（Quiet Eye-style 專注窗口初估）：本系統未量測眼球注視；所有階段與擊發點皆為影像推估，請由教練配合影片確認及調整。</p>
+        </section>
         <section class="replay-panel" id="replayPanel"><div class="replay-copy"><b>本次分析區間影像回放</b><span id="replayStatus">分析完成後可在此回放；影片只保留於目前裝置。</span><div class="replay-actions"><button class="button line-button" id="replayShareButton" disabled>LINE 分享影片</button><button class="button" id="replayDownloadButton" disabled>下載影片</button></div></div><video id="sessionReplay" controls playsinline preload="metadata"></video></section>
         <div class="coach-note"><span aria-hidden="true">◎</span><div><b>教練觀察提示</b><p id="coachNote"></p></div></div>
         <p class="report-status" id="reportStatus" role="status"></p>
@@ -162,6 +182,7 @@
         <article><b>前後是側面畫面位移</b><p>手槍 ROI 前後與軀幹前後，是側面影像中的水平相對位移；固定以畫面向左為向前、向右為向後，不等同真正的 3D 深度。</p></article>
         <article><b>軀幹前後是 2D 估算</b><p>以側面影像中骨盆相對足部支撐基準的水平變化估算前後晃動，不等同 3D 深度位移或測力板結果。</p></article>
         <article><b>教練判讀優先</b><p>系統不判定技術好壞。請結合射擊結果、呼吸、扳機階段與教練觀察做判讀。</p></article>
+        <article><b>不是眼動 Quiet Eye 測量</b><p>最終穩定瞄準候選區間來自槍口穩定度與追蹤品質，未量測眼球注視位置或持續時間；請由教練配合影片確認。</p></article>
       </div>
     </section>
 
@@ -207,6 +228,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=roi-screen-direction-v32"></script>
+  <script type="module" src="app.js?v=coach-phase-timeline-v33"></script>
 </body>
 </html>
