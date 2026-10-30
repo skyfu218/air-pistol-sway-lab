@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=xy-trace-window-v36">
+  <link rel="stylesheet" href="styles.css?v=fast-ai-scan-v37">
 </head>
 <body>
   <header class="topbar">
@@ -78,7 +78,7 @@
         </div>
 
         <section class="import-timeline hidden" id="importTimeline" aria-label="匯入影片分析區間">
-          <div class="timeline-heading"><div><b>選擇分析區間</b><small>AI 以「舉槍完成且進入穩定持槍」為起點，以「擊發後的瞬間反應」為結束點；可拖曳微調</small></div><button class="mini-button" id="aiRangeButton">AI 判別</button></div>
+          <div class="timeline-heading"><div><b>選擇分析區間</b><small>快速 AI 以「舉槍完成且進入穩定持槍」為起點，以「擊發後的瞬間反應」為結束點；可拖曳微調</small></div><button class="mini-button" id="aiRangeButton">快速 AI 判別</button></div>
           <div class="range-summary"><span>起點 <b id="rangeStartLabel">00:00.0</b></span><span>終點 <b id="rangeEndLabel">00:20.0</b></span><span>分析 <b id="rangeDurationLabel">20.0 秒</b></span></div>
           <div class="dual-range"><div class="range-selection" id="rangeSelection"></div><i id="aiStartMarker"></i><i id="aiEndMarker"></i><input id="rangeStart" type="range" min="0" max="20" step="0.1" value="0" aria-label="分析起點"><input id="rangeEnd" type="range" min="0" max="20" step="0.1" value="20" aria-label="分析終點"></div>
           <div class="timeline-actions"><button class="mini-button" id="previewStartButton">預覽起點</button><button class="mini-button" id="previewRangeButton">播放選取區間</button><span id="aiRangeStatus">影片僅在本機處理，不會上傳。</span></div>
@@ -228,6 +228,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=xy-trace-window-v36"></script>
+  <script type="module" src="app.js?v=fast-ai-scan-v37"></script>
 </body>
 </html>
