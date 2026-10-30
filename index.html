@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=no-quality-display-v40">
+  <link rel="stylesheet" href="styles.css?v=direction-color-trace-v41">
 </head>
 <body>
   <header class="topbar">
@@ -115,7 +115,7 @@
         </section>
 
         <section class="panel trace-panel">
-          <div class="panel-heading compact"><div><p class="kicker">ROI MOVEMENT TRACE</p><h2>手槍 ROI 軌跡移動紀錄</h2></div><div class="trace-legends"><span class="legend vertical"><i></i><b id="traceLiveStatus">等待開始分析</b></span></div></div>
+          <div class="panel-heading compact"><div><p class="kicker">ROI MOVEMENT TRACE</p><h2>手槍 ROI 軌跡移動紀錄</h2></div><div class="trace-legends"><span class="legend vertical"><i></i><b>上下</b></span><span class="legend depth"><i></i><b>前後</b></span><span class="trace-status" id="traceLiveStatus">等待開始分析</span></div></div>
           <div class="trace-plot">
             <canvas id="traceCanvas" width="640" height="280" aria-label="手槍 ROI 完整二維移動軌跡紀錄圖；水平為側面前後方向，垂直為上下方向"></canvas>
             <div class="trace-y-axis" aria-hidden="true"><span>↑ 上</span><b>Y 軸</b><span>下 ↓</span></div>
@@ -227,6 +227,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=no-quality-display-v40"></script>
+  <script type="module" src="app.js?v=direction-color-trace-v41"></script>
 </body>
 </html>
