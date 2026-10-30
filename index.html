@@ -8,7 +8,7 @@
   <title>AimTrace｜空氣手槍穩定性分析</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=live-roi-trace-v39">
+  <link rel="stylesheet" href="styles.css?v=no-quality-display-v40">
 </head>
 <body>
   <header class="topbar">
@@ -44,7 +44,7 @@
           <video id="video" playsinline muted></video>
           <canvas id="overlay"></canvas>
           <div class="motion-hud" id="motionHud" aria-live="polite">
-            <div class="hud-score"><span>即時穩定度</span><strong id="hudScore">—</strong><small id="hudTracking">等待 ROI</small></div>
+            <div class="hud-score"><span>即時穩定度</span><strong id="hudScore">—</strong></div>
             <div class="hud-directions" aria-label="2D 即時方向回饋">
               <div id="pitchDirection"><span>手槍 ROI 上下</span><b id="pitchArrow">•</b><small id="pitchValue">穩定</small></div>
               <div id="yawDirection"><span>手槍 ROI 前後*</span><b id="yawArrow">•</b><small id="yawValue">左＝前・右＝後</small></div>
@@ -144,7 +144,6 @@
           <article><span>上下最大範圍</span><strong id="summaryRangeY">—</strong></article>
           <article><span>前後最大範圍*</span><strong id="summaryRangeX">—</strong></article>
           <article><span>軌跡長度</span><strong id="summaryPath">—</strong></article>
-          <article><span>ROI 有效率</span><strong id="summaryQuality">—</strong></article>
         </div>
         <div class="summary-section-title secondary"><b>身體控制指標</b><span>骨架輔助判讀</span></div>
         <div class="summary-grid three"><article><span>持槍手晃動量</span><strong id="summaryWrist">—</strong></article><article><span>肘關節屈曲角度變異</span><strong id="summaryElbow">—</strong><small>完全伸直＝0°</small></article><article><span>軀幹前後晃動量</span><strong id="summaryForeAft">—</strong></article><article><span>2D 質心移動範圍</span><strong id="summaryComRange">—</strong></article><article><span>持槍手肘移動範圍</span><strong id="summaryElbowRange">—</strong></article></div>
@@ -182,7 +181,7 @@
         <article><b>前後是側面畫面位移</b><p>手槍 ROI 前後與軀幹前後，是側面影像中的水平相對位移；固定以畫面向左為向前、向右為向後，不等同真正的 3D 深度。</p></article>
         <article><b>軀幹前後是 2D 估算</b><p>以側面影像中骨盆相對足部支撐基準的水平變化估算前後晃動，不等同 3D 深度位移或測力板結果。</p></article>
         <article><b>教練判讀優先</b><p>系統不判定技術好壞。請結合射擊結果、呼吸、扳機階段與教練觀察做判讀。</p></article>
-        <article><b>不是眼動 Quiet Eye 測量</b><p>最終穩定瞄準候選區間來自槍口穩定度與追蹤品質，未量測眼球注視位置或持續時間；請由教練配合影片確認。</p></article>
+        <article><b>不是眼動 Quiet Eye 測量</b><p>最終穩定瞄準候選區間來自槍口穩定度變化，未量測眼球注視位置或持續時間；請由教練配合影片確認。</p></article>
       </div>
     </section>
 
@@ -228,6 +227,6 @@
     </div>
     <div class="privacy-footer">影像僅於本機處理，不上傳相機畫面</div>
   </footer>
-  <script type="module" src="app.js?v=live-roi-trace-v39"></script>
+  <script type="module" src="app.js?v=no-quality-display-v40"></script>
 </body>
 </html>
